@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rajiv &amp; Tejaswini · Engagement</title>
+  <meta name="description" content="Join us for our engagement on July 4th, 2026" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Inter:wght@400;500&family=Pinyon+Script&family=Tiro+Telugu&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="petals" aria-hidden="true"></div>
+
+  <header class="hero">
+    <p class="hero-mark"><span class="telugu">నిశ్చితార్థం</span></p>
+    <h1 class="names">
+      <span>Rajiv</span>
+      <span class="amp">&amp;</span>
+      <span>Tejaswini</span>
+    </h1>
+    <div class="parents">
+      <p>Son of <em>Sri. Siva Rao Nidumolu</em> &amp; <em>Smt. Seeta Mahalakshmi Nidumolu</em></p>
+      <p>Daughter of <em>Sri. Durga Prasad Kasinadhuni</em> &amp; <em>Smt. Padma Kasinadhuni</em></p>
+    </div>
+    <p class="invitation">Together with our families, we would love your company at our engagement ceremony</p>
+    <div class="date-block">
+      <p class="date-line"><em>July</em> 4, 2026</p>
+      <span class="day-name">Saturday &nbsp;·&nbsp; 8 PM onwards</span>
+    </div>
+    <a class="scroll-cue" href="#rsvp">RSVP</a>
+  </header>
+
+  <section class="photo">
+    <div class="photo-frame reveal">
+      <video autoplay loop muted playsinline preload="auto" poster="couple.png">
+        <source src="engagement.mov" type="video/mp4" />
+      </video>
+    </div>
+  </section>
+
+  <section class="message">
+    <div class="divider reveal"><span>· · ·</span></div>
+    <p class="reveal">Of all the people, in all the world — we found each other. As we step into this beautiful new chapter, we can't imagine doing it without the people we love most beside us. Come celebrate with us — for the laughter, the lights, and a little bit of magic.</p>
+    <div class="divider reveal"><span>· · ·</span></div>
+  </section>
+
+  <section class="details">
+    <h2 class="reveal">Details</h2>
+    <div class="detail-grid">
+      <div class="detail reveal" style="--delay: 0.1s">
+        <h3>When</h3>
+        <p>Saturday, July 4th, 2026<br />8:00 PM onwards</p>
+      </div>
+      <div class="detail reveal" style="--delay: 0.25s">
+        <h3>Where</h3>
+        <p>1216 Hill Country Pl<br />Celina, TX 75009</p>
+      </div>
+      <div class="detail reveal" style="--delay: 0.4s">
+        <h3>Dress Code</h3>
+        <p>Indian Festive</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="rsvp" id="rsvp">
+    <h2 class="reveal">RSVP</h2>
+    <p class="rsvp-sub reveal">Please let us know by May 15th</p>
+    <form id="rsvp-form" class="reveal" novalidate>
+      <label>
+        <span>Your Name</span>
+        <input type="text" name="name" required />
+      </label>
+      <label>
+        <span>Email or Phone</span>
+        <input type="text" name="contact" required />
+      </label>
+      <fieldset>
+        <legend>Will you attend?</legend>
+        <label class="radio">
+          <input type="radio" name="attending" value="yes" required />
+          <span>Yes</span>
+        </label>
+        <label class="radio">
+          <input type="radio" name="attending" value="no" />
+          <span>No</span>
+        </label>
+      </fieldset>
+      <label>
+        <span>Number of guests (including you)</span>
+        <input type="number" name="guests" min="1" max="6" value="1" required />
+      </label>
+      <label>
+        <span>A note for us (optional)</span>
+        <textarea name="note" rows="3"></textarea>
+      </label>
+      <button type="submit">Send RSVP</button>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <footer>
+    <p>With love and gratitude</p>
+    <p class="signoff">Rajiv &amp; Tejaswini</p>
+  </footer>
+
+  <audio id="bg-audio" loop preload="auto">
+    <source src="song.m4a" type="audio/mp4" />
+  </audio>
+  <button id="music-toggle" type="button" aria-label="Pause music" title="Pause music">
+    <span class="music-icon">❚❚</span>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
