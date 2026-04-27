@@ -375,6 +375,99 @@ footer p:first-child {
   line-height: 1;
 }
 
+/* MUSIC PERMISSION MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 28, 50, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 1.5rem;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease, visibility 0.45s;
+}
+.modal.open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-card {
+  background: var(--bg);
+  border-radius: 18px;
+  padding: 2.5rem 2rem 2rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(40, 30, 50, 0.3);
+  transform: translateY(24px) scale(0.94);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  background-image:
+    radial-gradient(ellipse at top right, rgba(252, 214, 226, 0.6), transparent 50%),
+    radial-gradient(ellipse at bottom left, rgba(212, 230, 244, 0.5), transparent 50%);
+}
+.modal.open .modal-card { transform: translateY(0) scale(1); }
+.modal-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+.modal h2 {
+  font-family: 'Pinyon Script', 'Fraunces', serif;
+  font-size: 2.8rem;
+  color: var(--ink);
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 1rem;
+  font-style: normal;
+}
+.modal-body {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin-bottom: 1.8rem;
+  font-weight: 400;
+}
+.modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.btn-primary, .btn-secondary {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: var(--blue-deep); border-color: var(--blue-deep); transform: translateY(-1px); }
+.btn-secondary {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--mute);
+}
+.btn-secondary:hover { color: var(--ink); border-color: var(--ink); }
+
 /* MUSIC TOGGLE */
 #music-toggle {
   position: fixed;

@@ -38,12 +38,16 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Background music (default on; falls back to first user gesture if browser blocks autoplay)
+// Background music — opt-in modal on first visit, pause when tab hidden
 (function bgMusic() {
   const audio = document.getElementById("bg-audio");
   const btn = document.getElementById("music-toggle");
+  const modal = document.getElementById("music-modal");
+  const yesBtn = document.getElementById("modal-yes");
+  const noBtn = document.getElementById("modal-no");
   if (!audio || !btn) return;
   const icon = btn.querySelector(".music-icon");
+  const PREF_KEY = "music-pref";
   let userPaused = false;
 
   audio.volume = 0.55;
@@ -56,30 +60,59 @@ form.addEventListener("submit", async (e) => {
     btn.setAttribute("aria-label", label);
   }
 
-  function tryPlay() {
-    if (userPaused) return;
-    audio.play().then(() => setUI(true)).catch(() => setUI(false));
+  function play() {
+    userPaused = false;
+    return audio.play().then(() => setUI(true)).catch(() => setUI(false));
+  }
+  function pause() {
+    audio.pause();
+    setUI(false);
   }
 
-  tryPlay();
+  // First-visit modal
+  const pref = localStorage.getItem(PREF_KEY);
+  if (modal && pref === null) {
+    setTimeout(() => modal.classList.add("open"), 1400);
+    yesBtn?.addEventListener("click", () => {
+      localStorage.setItem(PREF_KEY, "yes");
+      modal.classList.remove("open");
+      play();
+    });
+    noBtn?.addEventListener("click", () => {
+      localStorage.setItem(PREF_KEY, "no");
+      modal.classList.remove("open");
+    });
+  } else if (pref === "yes") {
+    play();
+    const events = ["pointerdown", "keydown", "scroll", "touchstart"];
+    const onFirstGesture = () => {
+      if (audio.paused && !userPaused) play();
+      events.forEach((ev) => document.removeEventListener(ev, onFirstGesture));
+    };
+    events.forEach((ev) => document.addEventListener(ev, onFirstGesture, { passive: true }));
+  }
 
-  // Fallback: start on first user interaction if autoplay was blocked
-  const events = ["pointerdown", "keydown", "scroll", "touchstart"];
-  const onFirstGesture = () => {
-    tryPlay();
-    events.forEach((ev) => document.removeEventListener(ev, onFirstGesture));
-  };
-  events.forEach((ev) => document.addEventListener(ev, onFirstGesture, { passive: true }));
-
+  // Manual toggle
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (audio.paused) {
-      userPaused = false;
-      audio.play().then(() => setUI(true)).catch(() => setUI(false));
+      localStorage.setItem(PREF_KEY, "yes");
+      play();
     } else {
       userPaused = true;
-      audio.pause();
-      setUI(false);
+      pause();
+    }
+  });
+
+  // Auto-pause on tab hidden / minimize, resume on focus
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (!audio.paused) {
+        audio.pause();
+        btn.classList.remove("playing");
+      }
+    } else if (!userPaused && localStorage.getItem(PREF_KEY) === "yes") {
+      audio.play().then(() => setUI(true)).catch(() => {});
     }
   });
 })();

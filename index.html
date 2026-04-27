@@ -108,9 +108,21 @@
   <audio id="bg-audio" loop preload="auto">
     <source src="song.m4a" type="audio/mp4" />
   </audio>
-  <button id="music-toggle" type="button" aria-label="Pause music" title="Pause music">
-    <span class="music-icon">❚❚</span>
+  <button id="music-toggle" type="button" aria-label="Play music" title="Play music">
+    <span class="music-icon">♪</span>
   </button>
+
+  <div id="music-modal" class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <div class="modal-card">
+      <p class="modal-eyebrow">A little something</p>
+      <h2 id="modal-title">Set the mood?</h2>
+      <p class="modal-body">We picked a song for you. May we play it softly while you look around?</p>
+      <div class="modal-buttons">
+        <button type="button" id="modal-yes" class="btn-primary">Yes, play it ♪</button>
+        <button type="button" id="modal-no" class="btn-secondary">No, thanks</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
