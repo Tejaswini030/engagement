@@ -38,16 +38,39 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Background music — opt-in modal on first visit, pause when tab hidden
+// Visitor tracking — fetch IP + geo from a free public API, log to the Apps Script
+(async function trackVisit() {
+  if (sessionStorage.getItem("visit-tracked") === "1") return;
+  sessionStorage.setItem("visit-tracked", "1");
+  try {
+    const r = await fetch("https://ipapi.co/json/");
+    const info = r.ok ? await r.json() : {};
+    const data = {
+      action: "track",
+      timestamp: new Date().toISOString(),
+      ip: info.ip || "",
+      city: info.city || "",
+      region: info.region || "",
+      country: info.country_name || info.country || "",
+      ua: navigator.userAgent,
+      referrer: document.referrer || "",
+      page: location.pathname + location.search,
+    };
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data).toString(),
+    });
+  } catch (_) {}
+})();
+
+// Background music — try autoplay, fall back to first user gesture, auto-pause on tab hidden
 (function bgMusic() {
   const audio = document.getElementById("bg-audio");
   const btn = document.getElementById("music-toggle");
-  const modal = document.getElementById("music-modal");
-  const yesBtn = document.getElementById("modal-yes");
-  const noBtn = document.getElementById("modal-no");
   if (!audio || !btn) return;
   const icon = btn.querySelector(".music-icon");
-  const PREF_KEY = "music-pref";
   let userPaused = false;
 
   audio.volume = 0.55;
@@ -61,57 +84,41 @@ form.addEventListener("submit", async (e) => {
   }
 
   function play() {
-    userPaused = false;
     return audio.play().then(() => setUI(true)).catch(() => setUI(false));
   }
-  function pause() {
-    audio.pause();
-    setUI(false);
-  }
 
-  // First-visit modal
-  const pref = localStorage.getItem(PREF_KEY);
-  if (modal && pref === null) {
-    setTimeout(() => modal.classList.add("open"), 1400);
-    yesBtn?.addEventListener("click", () => {
-      localStorage.setItem(PREF_KEY, "yes");
-      modal.classList.remove("open");
-      play();
-    });
-    noBtn?.addEventListener("click", () => {
-      localStorage.setItem(PREF_KEY, "no");
-      modal.classList.remove("open");
-    });
-  } else if (pref === "yes") {
-    play();
-    const events = ["pointerdown", "keydown", "scroll", "touchstart"];
-    const onFirstGesture = () => {
-      if (audio.paused && !userPaused) play();
-      events.forEach((ev) => document.removeEventListener(ev, onFirstGesture));
-    };
-    events.forEach((ev) => document.addEventListener(ev, onFirstGesture, { passive: true }));
-  }
+  // Try autoplay
+  audio.play().then(() => setUI(true)).catch(() => setUI(false));
+
+  // Fallback — start on first user interaction if browser blocked autoplay
+  const events = ["pointerdown", "keydown", "scroll", "touchstart"];
+  const onFirstGesture = () => {
+    if (!userPaused && audio.paused) play();
+    events.forEach((ev) => document.removeEventListener(ev, onFirstGesture));
+  };
+  events.forEach((ev) => document.addEventListener(ev, onFirstGesture, { passive: true }));
 
   // Manual toggle
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (audio.paused) {
-      localStorage.setItem(PREF_KEY, "yes");
+      userPaused = false;
       play();
     } else {
       userPaused = true;
-      pause();
+      audio.pause();
+      setUI(false);
     }
   });
 
-  // Auto-pause on tab hidden / minimize, resume on focus
+  // Auto-pause when tab hidden / window minimized; resume when visible
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       if (!audio.paused) {
         audio.pause();
         btn.classList.remove("playing");
       }
-    } else if (!userPaused && localStorage.getItem(PREF_KEY) === "yes") {
+    } else if (!userPaused) {
       audio.play().then(() => setUI(true)).catch(() => {});
     }
   });
