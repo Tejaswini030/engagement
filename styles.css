@@ -227,12 +227,8 @@ section, header, footer { padding: 5rem 1.5rem; text-align: center; }
   text-align: center;
 }
 .meet-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 4rem;
-  max-width: 1000px;
+  max-width: 720px;
   margin: 0 auto;
-  align-items: center;
 }
 .meet-photo {
   border-radius: 6px;
