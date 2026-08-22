@@ -18,7 +18,11 @@ form.addEventListener("submit", async (e) => {
   const original = button.textContent;
   button.textContent = "Sending…";
 
-  const data = Object.fromEntries(new FormData(form));
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData);
+  const events = formData.getAll("events");
+  data.events = events.join(", ");
+  data.attending = events.length > 0 ? "yes" : "no";
   data.timestamp = new Date().toISOString();
 
   try {
@@ -37,6 +41,101 @@ form.addEventListener("submit", async (e) => {
     button.textContent = original;
   }
 });
+
+// Countdown to the wedding (Nov 22, 2026 at 9:49 AM Central Time = 15:49 UTC)
+(function countdown() {
+  const target = new Date("2026-11-22T15:49:00Z").getTime();
+  const els = {
+    d: document.getElementById("cd-days"),
+    h: document.getElementById("cd-hours"),
+    m: document.getElementById("cd-minutes"),
+    s: document.getElementById("cd-seconds"),
+  };
+  if (!els.d) return;
+  function tick() {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      els.d.textContent = els.h.textContent = els.m.textContent = els.s.textContent = "0";
+      return;
+    }
+    els.d.textContent = String(Math.floor(diff / 86400000));
+    els.h.textContent = String(Math.floor((diff / 3600000) % 24)).padStart(2, "0");
+    els.m.textContent = String(Math.floor((diff / 60000) % 60)).padStart(2, "0");
+    els.s.textContent = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// Add-to-Calendar link generation
+(function wireCalendars() {
+  const events = {
+    sangeeth: {
+      title: "Sangeeth — Rajiv & Tejaswini",
+      start: "20261121T010000Z",
+      end: "20261121T050000Z",
+      allDay: false,
+      location: "Cloud 9 Ranch @ Custer, 5083 County Road 126, Celina, TX 75009",
+      description: "An evening of music, sparkle, and dancing. Starts 7:00 PM CT.",
+    },
+    wedding: {
+      title: "Wedding — Rajiv & Tejaswini",
+      start: "20261122T150000Z",
+      end: "20261122T200000Z",
+      allDay: false,
+      location: "Cloud 9 Ranch @ Custer, 5083 County Road 126, Celina, TX 75009",
+      description: "Muhurtham at 9:49 AM. Please arrive by 9:00 AM.",
+    },
+  };
+
+  function googleUrl(ev) {
+    const p = new URLSearchParams({
+      action: "TEMPLATE",
+      text: ev.title,
+      dates: `${ev.start}/${ev.end}`,
+      details: ev.description || "",
+      location: ev.location || "",
+    });
+    return `https://calendar.google.com/calendar/render?${p.toString()}`;
+  }
+
+  function icsFor(ev) {
+    const uid = ev.title.replace(/\W+/g, "-") + "@rajivtejaswini";
+    const stamp = "20261101T000000Z";
+    const startLine = ev.allDay ? `DTSTART;VALUE=DATE:${ev.start}` : `DTSTART:${ev.start}`;
+    const endLine = ev.allDay ? `DTEND;VALUE=DATE:${ev.end}` : `DTEND:${ev.end}`;
+    return [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//RajivTejaswini//Wedding//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      `UID:${uid}`,
+      `DTSTAMP:${stamp}`,
+      startLine,
+      endLine,
+      `SUMMARY:${ev.title}`,
+      `DESCRIPTION:${(ev.description || "").replace(/\n/g, "\\n")}`,
+      `LOCATION:${ev.location || ""}`,
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+  }
+
+  Object.entries(events).forEach(([key, ev]) => {
+    const box = document.querySelector(`.add-cal[data-event="${key}"]`);
+    if (!box) return;
+    const g = box.querySelector(".cal-google");
+    const i = box.querySelector(".cal-ics");
+    if (g) g.href = googleUrl(ev);
+    if (i) {
+      const blob = new Blob([icsFor(ev)], { type: "text/calendar;charset=utf-8" });
+      i.href = URL.createObjectURL(blob);
+      i.download = key + "-rajiv-tejaswini.ics";
+    }
+  });
+})();
 
 // Visitor tracking — fetch IP + geo from a free public API, log to the Apps Script
 (async function trackVisit() {
@@ -136,25 +235,3 @@ const revealObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 
-// Floating flower petals
-(function makePetals() {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const container = document.querySelector(".petals");
-  if (!container) return;
-  const glyphs = ["✿", "❀", "✾", "❁", "✼"];
-  const colors = ["pink", "blue", "peach", "pink", "blue"];
-  const count = 14;
-  for (let i = 0; i < count; i++) {
-    const el = document.createElement("span");
-    el.className = "petal " + colors[i % colors.length];
-    el.textContent = glyphs[i % glyphs.length];
-    el.style.left = Math.random() * 100 + "%";
-    el.style.fontSize = 0.9 + Math.random() * 1.4 + "rem";
-    el.style.opacity = 0.18 + Math.random() * 0.22;
-    const fall = 16 + Math.random() * 14;
-    const sway = 3 + Math.random() * 3;
-    el.style.animationDuration = `${fall}s, ${sway}s`;
-    el.style.animationDelay = `${-Math.random() * fall}s, ${-Math.random() * sway}s`;
-    container.appendChild(el);
-  }
-})();
