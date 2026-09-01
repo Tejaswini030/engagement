@@ -2,49 +2,52 @@
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw763IH4ckCbnfLMxhyGZ4zvpF1rB7R1A5KksOCgBiUmHX4H9febH6ve-FXJvw9TenSkQ/exec";
 
 const form = document.getElementById("rsvp-form");
-const status = document.getElementById("status");
-const button = form.querySelector("button[type=submit]");
+if (form) {
+  const status = document.getElementById("status");
+  const button = form.querySelector("button[type=submit]");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  status.textContent = "";
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    status.textContent = "";
 
-  if (!form.checkValidity()) {
-    status.textContent = "Please fill in the required fields.";
-    return;
-  }
+    if (!form.checkValidity()) {
+      status.textContent = "Please fill in the required fields.";
+      return;
+    }
 
-  button.disabled = true;
-  const original = button.textContent;
-  button.textContent = "Sending…";
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = "Sending…";
 
-  const formData = new FormData(form);
-  const data = Object.fromEntries(formData);
-  const events = formData.getAll("events");
-  data.events = events.join(", ");
-  data.attending = events.length > 0 ? "yes" : "no";
-  data.timestamp = new Date().toISOString();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    data.type = form.dataset.eventType || "wedding";
+    data.timestamp = new Date().toISOString();
 
-  try {
-    await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(data).toString(),
-    });
-    status.textContent = "Thank you — your RSVP is received with love. ✿";
-    form.reset();
-  } catch (err) {
-    status.textContent = "Something went wrong. Please try again or message us directly.";
-  } finally {
-    button.disabled = false;
-    button.textContent = original;
-  }
-});
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(data).toString(),
+      });
+      status.textContent = "Thank you — your RSVP is received with love. ✿";
+      form.reset();
+    } catch (err) {
+      status.textContent = "Something went wrong. Please try again or message us directly.";
+    } finally {
+      button.disabled = false;
+      button.textContent = original;
+    }
+  });
+}
 
-// Countdown to the wedding (Nov 22, 2026 at 9:49 AM Central Time = 15:49 UTC)
+// Countdown — target read from .countdown[data-target="ISO"] on the page
 (function countdown() {
-  const target = new Date("2026-11-22T15:49:00Z").getTime();
+  const container = document.querySelector(".countdown");
+  if (!container) return;
+  const iso = container.dataset.target || "2026-11-22T15:49:00Z";
+  const target = new Date(iso).getTime();
   const els = {
     d: document.getElementById("cd-days"),
     h: document.getElementById("cd-hours"),
